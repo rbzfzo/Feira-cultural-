@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Poupança Digital</title>
+<style>
+:root{--bg:#1b1a21;--card:#25242d;--line:#36343f;--ink:#f2f0f8;--mute:#9d99ae;--v:#8b7bff;--vs:#2b2752;--vt:#c4bcff;--gold:#f5c453}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.45 ui-rounded,"SF Pro Rounded","Segoe UI",system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:-20% auto auto -10%;width:60vw;height:60vw;background:radial-gradient(closest-side,#8b7bff33,transparent);pointer-events:none}
+#app{position:relative;height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header,footer{display:flex;align-items:center;gap:14px;padding:14px 28px}
+header small{display:block;color:var(--mute);font-size:13px;line-height:1.1}
+header b{font-size:18px}
+.sp{flex:1}
+.pill{background:var(--vs);color:var(--vt);border-radius:7px;padding:3px 10px;font-size:13px;font-weight:700;display:inline-block}
+button{font:inherit;color:inherit;cursor:pointer}
+.ib{background:var(--card);border:1px solid var(--line);border-radius:12px;width:44px;height:44px;font-size:20px}
+.ib:disabled{opacity:.3}
+#dots{display:flex;gap:8px;flex:1;justify-content:center}
+#dots button{width:10px;height:10px;border-radius:9px;border:0;background:var(--line);padding:0;transition:.3s}
+#dots button.on{width:30px;background:var(--v)}
+#stage{flex:1;min-height:0;position:relative}
+.s{position:absolute;inset:0;display:none;grid-template-columns:1fr 1.15fr;gap:32px;padding:0 28px;overflow:auto;align-content:safe center;align-items:center}
+.s.on{display:grid;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateX(24px)}}
+h1,h2{margin:12px 0 0;font-weight:800;letter-spacing:-.03em;line-height:1.03}
+h1{font-size:clamp(34px,5.4vw,66px)}
+h2{font-size:clamp(30px,4vw,48px)}
+.lead{color:var(--mute);font-size:19px;margin:14px 0 0;max-width:30ch}
+.cta{margin-top:22px;background:var(--v);color:#14112b;border:0;border-radius:14px;padding:14px 26px;font-weight:800;font-size:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;text-align:left;transition:.2s}
+button.card:active{transform:scale(.97)}
+.card .e{font-size:34px}.card h3{margin:6px 0 2px;font-size:20px}.card p{margin:0;color:var(--mute);font-size:15px}
+.card .more{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);color:var(--vt);font-size:15px}
+.card.open{border-color:var(--v)}.card.open .more{display:block}
+.call{margin-top:18px;border-left:3px solid var(--v);background:var(--card);border-radius:4px 14px 14px 4px;padding:12px 16px;color:var(--mute);font-size:15px}
+/* tabs */
+.tabs{display:grid;gap:10px;margin-top:20px}
+.tabs button{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;text-align:left;font-weight:700}
+.tabs button.on{border-color:var(--v);background:var(--vs)}
+.det .e{font-size:54px}.det h3{font-size:26px;margin:6px 0 8px}
+.det dl{margin:14px 0 0;display:grid;gap:10px}.det dt{color:var(--vt);font-weight:800;font-size:14px}.det dd{margin:0}
+/* sim */
+.ctl{margin-top:16px;display:flex;justify-content:space-between;font-weight:700;font-size:16px}
+.ctl output{color:var(--v);font-weight:800;font-size:20px}
+input[type=range]{width:100%;height:34px;accent-color:var(--v)}
+.chips{display:flex;gap:8px;margin-top:6px}
+.chips button{flex:1;padding:10px 0;border-radius:12px;border:1px solid var(--line);background:transparent;font-weight:800}
+.chips button[aria-pressed=true]{background:var(--v);border-color:var(--v);color:#14112b}
+.top{display:flex;gap:22px;align-items:center}
+.jw{width:120px;flex:none;position:relative;cursor:pointer;user-select:none}
+.lid{width:70px;height:14px;margin:0 auto -2px;background:var(--gold);border-radius:8px 8px 3px 3px;position:relative;z-index:1}
+.jar{height:140px;border:4px solid var(--ink);border-radius:18px 18px 32px 32px;overflow:hidden;display:flex;flex-direction:column-reverse;background:#ffffff0d}
+.jar i{display:block;transition:height .7s cubic-bezier(.3,1.3,.5,1)}
+#fI{background:var(--v)}#fG{background:var(--gold)}
+.coin{position:absolute;top:-4px;left:50%;font-size:22px;pointer-events:none;animation:fall .9s ease-in forwards;z-index:3}
+@keyframes fall{to{transform:translate(var(--dx),140px) rotate(300deg);opacity:0}}
+.big{font-size:clamp(40px,6vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.gain{display:inline-block;margin-top:8px;background:var(--gold);color:#241a00;font-weight:800;border-radius:99px;padding:3px 12px;font-size:15px}
+#ch{display:flex;align-items:flex-end;gap:2px;height:110px;margin-top:18px;touch-action:pan-y}
+#ch b{flex:1;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden;opacity:.5;min-width:1px}
+#ch b.on{opacity:1}
+#ch i{display:block}.m{background:var(--v)}.g{background:var(--gold)}
+#rd{margin:8px 0 0;font-weight:700}#ft{color:var(--mute);font-size:14px;margin:4px 0 0}
+/* game */
+.stat{display:flex;gap:10px;margin-top:18px}
+.stat div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 16px}
+.stat small{color:var(--mute);display:block;font-size:12px}.stat b{font-size:22px}
+.bar{height:8px;border-radius:8px;background:var(--line);margin-top:14px;overflow:hidden}.bar i{display:block;height:100%;background:var(--v);width:0;transition:width .5s}
+.gc{text-align:center}.gc .e{font-size:56px}.gc p{font-size:21px;font-weight:700;margin:6px 0 14px}
+.opts{display:grid;gap:10px}
+.opts button{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:700;font-size:17px}
+.opts button.pick{border-color:var(--v);background:var(--vs)}
+.opts.done button:not(.pick){opacity:.4}.opts.done{pointer-events:none}
+#gf{margin-top:14px;text-align:left}
+#gf p{font-size:16px;font-weight:400;margin:0 0 10px;border-left:3px solid var(--v);padding-left:12px;color:var(--ink)}
+.ck{display:grid;gap:10px}
+.ck div{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-weight:700}
+.ck span{background:var(--v);color:#14112b;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;flex:none}
+.row2{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.row2 .cta{margin:0}.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:820px){.s{grid-template-columns:1fr;gap:18px;align-items:start;padding-bottom:14px}.top{flex-direction:column;align-items:flex-start}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div><small id="pt"></small><b id="tt"></b></div><span class="sp"></span>
+  <span class="pill">Poupança digital</span>
+  <button class="ib" id="fs" aria-label="Tela cheia">⛶</button>
+</header>
+<main id="stage">
+
+<section class="s on">
+  <div><span class="pill">Feira cultural</span>
+    <h1>Como economizar na poupança digital</h1>
+    <p class="lead">Guardar dinheiro é hábito, não sorte. Vem testar na prática.</p>
+    <button class="cta" onclick="go(1)">Começar ›</button></div>
+  <div class="grid">
+    <div class="card"><div class="e">📱</div><h3>No celular</h3><p>Conta prática, a um toque.</p></div>
+    <div class="card"><div class="e">🔒</div><h3>Segura</h3><p>Protegida pelo FGC, até R$ 250 mil.</p></div>
+    <div class="card"><div class="e">📈</div><h3>Rende juros</h3><p>O dinheiro cresce sozinho.</p></div>
+    <div class="card"><div class="e">🙌</div><h3>Acessível</h3><p>Dá para começar com pouco.</p></div>
+  </div>
+</section>
+
+<section class="s">
+  <div><span class="pill">4 jeitos</span><h2>Como economizar</h2><p class="lead">Toque em cada cartão para ver um exemplo.</p>
+  <div class="call">Quem guarda primeiro e gasta depois chega mais longe.</div></div>
+  <div class="grid" id="ways"></div>
+</section>
+
+<section class="s">
+  <div><span class="pill">Tipos</span><h2>Onde guardar</h2><div class="tabs" id="tabs"></div></div>
+  <div class="card det" id="det"></div>
+</section>
+
+<section class="s">
+  <div><span class="pill">Simulador</span><h2>Quanto vai render?</h2>
+    <div class="ctl"><label for="v">Guardo hoje</label><output id="vo"></output></div>
+    <input type="range" id="v" min="10" max="1000" step="10" value="100">
+    <div class="ctl"><label for="a">Guardo por mês</label><output id="ao"></output></div>
+    <input type="range" id="a" min="0" max="200" step="5" value="20">
+    <div class="ctl"><label for="m">Meses</label><output id="mo"></output></div>
+    <input type="range" id="m" min="1" max="60" value="12">
+    <div class="ctl"><span>Rendimento ao mês (fictício)</span></div><div class="chips" id="rates"></div>
+  </div>
+  <div class="card">
+    <div class="top">
+      <div class="jw" id="jar" role="button" aria-label="Soltar dinheiro"><div class="lid"></div><div class="jar"><i id="fI"></i><i id="fG"></i></div></div>
+      <div aria-live="polite"><small style="color:var(--mute)">Você terá</small><div class="big" id="tot">0</div><span class="gain" id="gn"></span></div>
+    </div>
+    <div id="ch" aria-label="Gráfico mês a mês"></div><p id="rd"></p><p id="ft"></p>
+  </div>
+</section>
+
+<section class="s">
+  <div><span class="pill">Jogo</span><h2>Missão poupança</h2>
+    <p class="lead">Chegam R$ 100 por mês. Cada escolha muda o seu futuro.</p>
+    <div class="stat"><div><small>Mês</small><b id="gm">1/5</b></div><div><small>Poupança</small><b id="gb">0</b></div></div>
+    <div class="bar"><i id="gp"></i></div></div>
+  <div class="card gc"><div class="e" id="ge"></div><p id="gt"></p><div class="opts" id="go"></div><div id="gf"></div></div>
+</section>
+
+<section class="s">
+  <div><span class="pill">Resumo e encerramento</span>
+    <h2>Hábito, consistência e escolha inteligente.</h2>
+    <p class="lead">Não é preciso ganhar muito. É preciso dar o primeiro passo.</p>
+    <div class="call">Obrigado pela atenção! Se tiver dúvida, estamos à disposição.</div>
+    <div class="row2"><button class="cta" onclick="go(4);gstart()">Jogar de novo</button><button class="cta alt" onclick="go(0)">Voltar ao início</button></div></div>
+  <div class="ck"><div><span>✓</span>Automatize os depósitos</div><div><span>✓</span>Defina metas claras</div><div><span>✓</span>Evite resgates desnecessários</div><div><span>✓</span>Compare as taxas</div></div>
+</section>
+</main>
+<footer><button class="ib" id="pv" aria-label="Anterior">‹</button><div id="dots"></div><button class="ib" id="nx" aria-label="Próximo">›</button></footer>
+</div>
+
+<script>
+var $=function(s){return document.querySelector(s)},$$=function(s){return [].slice.call(document.querySelectorAll(s))};
+var f=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
+var T=['Boas-vindas','Como economizar','Onde guardar','Simulador','Jogo da poupança','Resumo e encerramento'],I=0,secs=$$('.s');
+T.forEach(function(t,k){var b=document.createElement('button');b.setAttribute('aria-label',t);b.onclick=function(){go(k)};$('#dots').appendChild(b)});
+function go(n){I=Math.max(0,Math.min(T.length-1,n));secs.forEach(function(s,k){s.classList.toggle('on',k===I)});
+  [].forEach.call($('#dots').children,function(d,k){d.classList.toggle('on',k===I)});
+  $('#pt').textContent='Parte '+(I+1)+' de '+T.length;$('#tt').textContent=T[I];$('#pv').disabled=!I;$('#nx').disabled=I===T.length-1;if(I===3)run()}
+$('#pv').onclick=function(){go(I-1)};$('#nx').onclick=function(){go(I+1)};
+document.onkeydown=function(e){if(e.key==='ArrowRight')go(I+1);if(e.key==='ArrowLeft')go(I-1)};
+var sx=0;document.addEventListener('touchstart',function(e){sx=e.target.closest('input,#ch')?null:e.touches[0].clientX});
+document.addEventListener('touchend',function(e){if(sx===null)return;var d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>90)go(I+(d<0?1:-1))});
+$('#fs').onclick=function(){var d=document.documentElement;document.fullscreenElement?document.exitFullscreen():d.requestFullscreen&&d.requestFullscreen()};
+
+/* jeitos */
+[['🔁','Automatize','Programe o depósito no dia que o dinheiro entra.','Ex.: R$ 20 todo dia 5. Você nem sente.'],
+ ['🎯','Defina metas','Dê nome e valor ao que você quer.','Ex.: fone novo = R$ 150 em 5 meses.'],
+ ['🚫','Evite resgates','Cada saque corta o rendimento.','Só mexa no dinheiro em emergência de verdade.'],
+ ['⚖️','Compare taxas','Cada instituição paga um rendimento.','Veja quanto rende por mês antes de escolher.']].forEach(function(w){
+  var b=document.createElement('button');b.className='card';b.innerHTML='<div class="e">'+w[0]+'</div><h3>'+w[1]+'</h3><p>'+w[2]+'</p><div class="more">'+w[3]+'</div>';
+  b.onclick=function(){b.classList.toggle('open')};$('#ways').appendChild(b)});
+
+/* tipos */
+var D=[['🏦','Poupança tradicional','Conta conhecida, simples de abrir. O rendimento costuma ser baixo.','Quem está começando.','Veja as tarifas da conta.'],
+ ['📱','Banco digital','Tudo pelo app, em geral sem tarifa e com abertura rápida.','Quem quer praticidade.','Confira se a instituição é autorizada.'],
+ ['🎯','Cofrinho por objetivo','Você separa o dinheiro em potes com nome e meta.','Juntar para algo específico.','Veja quanto cada cofrinho rende.'],
+ ['📈','CDB com liquidez diária','Você empresta ao banco e pode resgatar em qualquer dia.','Reserva de emergência.','Há Imposto de Renda sobre o ganho.']];
+function tab(k){[].forEach.call($('#tabs').children,function(b,j){b.classList.toggle('on',j===k)});var d=D[k];
+  $('#det').innerHTML='<div class="e">'+d[0]+'</div><h3>'+d[1]+'</h3><div>'+d[2]+'</div><dl><dt>Boa para</dt><dd>'+d[3]+'</dd><dt>Atenção</dt><dd>'+d[4]+'</dd></dl>'}
+D.forEach(function(d,k){var b=document.createElement('button');b.innerHTML='<span>'+d[0]+'</span>'+d[1];b.onclick=function(){tab(k)};$('#tabs').appendChild(b)});tab(0);
+
+/* simulador */
+var S={v:100,a:20,m:12,r:0.8,sh:0},ser=[],ch=$('#ch');
+[0.5,0.8,1,1.2].forEach(function(r){var b=document.createElement('button');b.textContent=String(r).replace('.',',')+'%';b.setAttribute('aria-pressed',r===S.r);
+  b.onclick=function(){S.r=r;[].forEach.call($('#rates').children,function(c){c.setAttribute('aria-pressed',c===b)});run()};$('#rates').appendChild(b)});
+['v','a','m'].forEach(function(k){$('#'+k).oninput=function(e){S[k]=+e.target.value;run()}});
+function tw(to){var from=S.sh,t0=performance.now();(function st(t){var p=Math.min(1,(t-t0)/600);S.sh=from+(to-from)*(1-Math.pow(1-p,3));$('#tot').textContent=f(S.sh);if(p<1)requestAnimationFrame(st)})(t0)}
+function rd(i){var iv=S.v+S.a*i;[].forEach.call(ch.children,function(c,j){c.classList.toggle('on',j===i-1)});
+  $('#rd').innerHTML='Mês '+i+': <span style="color:var(--vt)">'+f(ser[i])+'</span> (ganho de '+f(ser[i]-iv)+')'}
+function run(){var b=S.v;ser=[b];for(var i=1;i<=S.m;i++){b=b*(1+S.r/100)+S.a;ser.push(b)}
+  var inv=S.v+S.a*S.m,g=b-inv;
+  $('#vo').textContent='R$ '+S.v;$('#ao').textContent='R$ '+S.a;$('#mo').textContent=S.m+(S.m===1?' mês':' meses');
+  tw(b);$('#gn').textContent='+'+f(g)+' de ganho';
+  var L=.22+.74*S.m/60,sh=g>0?Math.max(g/b,.05):0;$('#fI').style.height=L*100*(1-sh)+'%';$('#fG').style.height=L*100*sh+'%';
+  var h='';for(var j=1;j<=S.m;j++){var iv=S.v+S.a*j;h+='<b style="height:'+ser[j]/b*100+'%"><i class="m" style="height:'+iv/ser[j]*100+'%"></i><i class="g" style="height:'+(ser[j]-iv)/ser[j]*100+'%"></i></b>'}
+  ch.innerHTML=h;rd(S.m);
+  var d=Math.log(2)/Math.log(1+S.r/100);
+  $('#ft').textContent='Parado no cofre: '+f(inv)+'. Na poupança: '+f(b)+'. O dinheiro dobra em ~'+Math.round(d)+' meses.'}
+function pick(e){var r=ch.getBoundingClientRect();rd(Math.max(1,Math.min(S.m,Math.floor((e.clientX-r.left)/r.width*S.m)+1)))}
+ch.addEventListener('pointerdown',pick);ch.addEventListener('pointermove',function(e){if(e.buttons||e.pressure>0)pick(e)});
+$('#jar').onclick=function(){for(var i=0;i<9;i++)(function(i){var c=document.createElement('span');c.className='coin';c.textContent='💵';c.style.setProperty('--dx',(Math.random()*60-30)+'px');c.style.marginLeft=(Math.random()*40-20)+'px';c.style.animationDelay=i*70+'ms';$('#jar').appendChild(c);setTimeout(function(){c.remove()},1300+i*70)})(i)};
+
+/* jogo */
+var R=[
+ {e:'💰',t:'Mês 1: chegaram R$ 100. Como começar?',o:[['Guardar 40 assim que chegar',40,'Guardar primeiro é automatizar. O hábito fica fácil.'],['Guardar o que sobrar no fim',10,'Quase nunca sobra. Guarde antes de gastar.'],['Gastar tudo agora',0,'Foi divertido, mas a poupança segue vazia.']]},
+ {e:'👟',t:'Mês 2: tênis em promoção por R$ 60. "Última chance!"',o:[['Comprar na hora',5,'Pressa de promoção costuma ser compra por impulso.'],['Esperar e comparar preços',50,'Pesquisar evita pagar mais e ainda sobra para guardar.'],['Parcelar em 3 vezes',20,'Parcelas comem o salário dos próximos meses.']]},
+ {e:'🍕',t:'Mês 3: a turma chamou para a pizza.',o:[['Pedir de tudo',10,'Foi bom, mas o bolso sentiu.'],['Ir e gastar só o combinado',35,'Curtiu e ainda guardou. Equilíbrio também vale!'],['Propor um lanche mais barato',50,'Diversão e economia juntas. Ótima escolha!']]},
+ {e:'📱',t:'Mês 4: imprevisto! O celular quebrou. Conserto: R$ 80.',ev:1,o:[['Ver o que acontece',0,'']]},
+ {e:'🔎',t:'Mês 5: seu banco paga pouco. Outro paga mais.',o:[['Comparar taxas e migrar',50,'Comparar rendeu um bônus de +R$ 8.',8],['Deixar como está',50,'Funciona, mas você pode estar perdendo rendimento.'],['Sacar metade para gastar',-.5,'Sacar corta o rendimento e atrasa sua meta.']]}];
+var G={r:0,b:0};
+function gstart(){G.r=0;G.b=0;gshow()}
+function gshow(){var q=R[G.r],o=$('#go');$('#gf').innerHTML='';o.className='opts';$('#gb').textContent='R$ '+Math.round(G.b);$('#gp').style.width=G.r/R.length*100+'%';
+  if(!q){var s=G.b>=110?3:G.b>=60?2:1;$('#gm').textContent='Fim';$('#ge').textContent='⭐'.repeat(s);
+    $('#gt').innerHTML=['','Dá para melhorar: guarde primeiro e tenha uma reserva.','Bom caminho! Faltou um pouco de reserva ou de comparação.','Mestre da poupança! Hábito, reserva e taxas comparadas.'][s]+'<br><small style="color:var(--mute)">Você terminou com R$ '+Math.round(G.b)+'.</small>';
+    o.innerHTML='<button>Jogar de novo</button>';o.firstChild.onclick=gstart;return}
+  $('#gm').textContent=(G.r+1)+'/'+R.length;$('#ge').textContent=q.e;$('#gt').textContent=q.t;o.innerHTML='';
+  q.o.forEach(function(x,k){var b=document.createElement('button');b.textContent=x[0];b.onclick=function(){ch2(k,b)};o.appendChild(b)})}
+function ch2(k,b){var q=R[G.r],x=q.o[k],m=x[2],g=G.b*1.01;
+  if(q.ev){if(g>=80){G.b=g-80;m='Sua reserva pagou o conserto. Sem dívida e sem susto! 🛡️'}else{G.b=Math.max(0,g-25);m='Sem reserva, você pagou no cartão com juros: -R$ 25. 😬'}}
+  else G.b=x[1]<0?g*(1+x[1]):g+x[1]+(x[3]||0);
+  b.classList.add('pick');$('#go').classList.add('done');$('#gb').textContent='R$ '+Math.round(G.b);
+  $('#gf').innerHTML='<p>'+m+'</p><button class="cta" style="margin:0;width:100%">Próximo ›</button>';
+  $('#gf button').onclick=function(){G.r++;gshow()}}
+gstart();go(0);
+</script>
+</body>
+</html>
